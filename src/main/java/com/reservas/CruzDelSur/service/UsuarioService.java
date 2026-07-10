@@ -1,6 +1,8 @@
 package com.reservas.CruzDelSur.service;
 
 import com.reservas.CruzDelSur.entity.Usuario;
+import com.reservas.CruzDelSur.exception.BusinessException;
+import com.reservas.CruzDelSur.exception.ResourceNotFoundException;
 import com.reservas.CruzDelSur.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,6 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository repository;
 
-    // Inyectamos el encriptador que configuramos en SecurityConfig
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -34,7 +35,9 @@ public class UsuarioService {
 
     @Transactional
     public Usuario guardar(Usuario usuario) {
-        // Encriptar la contraseña plana antes de enviarla a la base de datos
+        validarContrasena(usuario.getContrasena_hash(), true);
+        validarCorreoDisponible(usuario.getCorreo(), null);
+
         String hash = passwordEncoder.encode(usuario.getContrasena_hash());
         usuario.setContrasena_hash(hash);
 
@@ -44,14 +47,16 @@ public class UsuarioService {
     @Transactional
     public Usuario actualizar(Integer id, Usuario usuarioActualizado) {
         Usuario usuarioExistente = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        validarCorreoDisponible(usuarioActualizado.getCorreo(), id);
 
         usuarioExistente.setNombres(usuarioActualizado.getNombres());
         usuarioExistente.setCorreo(usuarioActualizado.getCorreo());
         usuarioExistente.setRol(usuarioActualizado.getRol());
 
-        // Solo actualizar y encriptar la contraseña si el usuario envía una nueva
-        if (usuarioActualizado.getContrasena_hash() != null && !usuarioActualizado.getContrasena_hash().isEmpty()) {
+        if (usuarioActualizado.getContrasena_hash() != null && !usuarioActualizado.getContrasena_hash().isBlank()) {
+            validarContrasena(usuarioActualizado.getContrasena_hash(), false);
             String hash = passwordEncoder.encode(usuarioActualizado.getContrasena_hash());
             usuarioExistente.setContrasena_hash(hash);
         }
@@ -62,7 +67,28 @@ public class UsuarioService {
     @Transactional
     public void eliminar(Integer id) {
         Usuario usuario = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         repository.delete(usuario);
+    }
+
+    private void validarCorreoDisponible(String correo, Integer idUsuarioActual) {
+        repository.findByCorreo(correo).ifPresent(usuario -> {
+            if (idUsuarioActual == null || !usuario.getId_usuario().equals(idUsuarioActual)) {
+                throw new BusinessException("Ya existe un usuario con ese correo");
+            }
+        });
+    }
+
+    private void validarContrasena(String contrasena, boolean requerida) {
+        if (contrasena == null || contrasena.isBlank()) {
+            if (requerida) {
+                throw new BusinessException("La contrasena es obligatoria");
+            }
+            return;
+        }
+
+        if (contrasena.length() < 6) {
+            throw new BusinessException("La contrasena debe tener al menos 6 caracteres");
+        }
     }
 }

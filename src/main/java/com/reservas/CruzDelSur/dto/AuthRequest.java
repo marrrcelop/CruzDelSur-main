@@ -1,8 +1,12 @@
 package com.reservas.CruzDelSur.dto;
 
 
+import jakarta.validation.constraints.NotBlank;
+
 public class AuthRequest {
+    @NotBlank(message = "El usuario es obligatorio")
     private String username;
+    @NotBlank(message = "La contrasena es obligatoria")
     private String password;
     public String getUsername() {
         return username;

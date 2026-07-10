@@ -1,6 +1,7 @@
 package com.reservas.CruzDelSur.controller;
 import com.reservas.CruzDelSur.entity.Viajes;
 import com.reservas.CruzDelSur.service.ViajeService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -18,17 +19,17 @@ public class ViajeController {
     public Optional<Viajes> buscarPorId(@PathVariable Integer id){
         return service.buscarPorId(id);
     }
-    @GetMapping("/edad/{edad}")
+    @GetMapping("/precio/{precio}")
     public List<Viajes> buscarPorPrecio(@PathVariable Double precio){
         return service.buscarPorPrecio(precio);
     }
     @PostMapping
-    public Viajes guardar(@RequestBody Viajes viaje){
+    public Viajes guardar(@Valid @RequestBody Viajes viaje){
         return service.guardar(viaje);
     }
     @PutMapping("/{id}")
     public Viajes actualizar(@PathVariable Integer id,
-                              @RequestBody Viajes viaje){
+                              @Valid @RequestBody Viajes viaje){
         return service.actualizar(id, viaje);
     }
     @DeleteMapping("/{id}")

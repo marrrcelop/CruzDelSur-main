@@ -3,6 +3,7 @@ package com.reservas.CruzDelSur.controller;
 
 import com.reservas.CruzDelSur.dto.AuthRequest;
 import com.reservas.CruzDelSur.service.JwtService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,7 +24,7 @@ public class AuthController {
     private AuthenticationManager authenticationManager; // Inyectamos el manager
 
     @PostMapping("/login")
-    public String login(@RequestBody AuthRequest request) {
+    public String login(@Valid @RequestBody AuthRequest request) {
         try {
             // Esto validará internamente el correo (username en AuthRequest) y verificará que el password ingresado coincida con el Hash de la BD.
             authenticationManager.authenticate(

@@ -2,6 +2,7 @@ package com.reservas.CruzDelSur.controller;
 
 import com.reservas.CruzDelSur.entity.Cliente;
 import com.reservas.CruzDelSur.service.ClienteService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -24,12 +25,12 @@ public class ClienteController {
         return service.buscarPorNombre(nombre);
     }
     @PostMapping
-    public Cliente guardar(@RequestBody Cliente cliente){
+    public Cliente guardar(@Valid @RequestBody Cliente cliente){
         return service.guardar(cliente);
     }
     @PutMapping("/{id}")
     public Cliente actualizar(@PathVariable Integer id,
-                              @RequestBody Cliente cliente){
+                              @Valid @RequestBody Cliente cliente){
         return service.actualizar(id, cliente);
     }
     @DeleteMapping("/{id}")

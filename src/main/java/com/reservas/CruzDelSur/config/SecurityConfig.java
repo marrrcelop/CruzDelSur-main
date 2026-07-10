@@ -52,7 +52,7 @@ public class SecurityConfig {
             return User.builder()
                     .username(usuario.getCorreo())
                     .password(usuario.getContrasena_hash()) // Spring validará el hash automáticamente
-                    .roles(usuario.getRol().equals("Administrador") ? "ADMIN" : "USER")
+                    .roles(esAdministrador(usuario.getRol()) ? "ADMIN" : "USER")
                     .build();
         };
     }
@@ -68,7 +68,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://127.0.0.1:4200"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -76,5 +76,9 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    private boolean esAdministrador(String rol) {
+        return "ADMIN".equalsIgnoreCase(rol) || "Administrador".equalsIgnoreCase(rol);
     }
 }

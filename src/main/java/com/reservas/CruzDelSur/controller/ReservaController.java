@@ -2,6 +2,7 @@ package com.reservas.CruzDelSur.controller;
 
 import com.reservas.CruzDelSur.entity.Reserva;
 import com.reservas.CruzDelSur.service.ReservaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,12 +27,12 @@ public class ReservaController {
     }
 
     @PostMapping
-    public Reserva guardar(@RequestBody Reserva reserva) {
+    public Reserva guardar(@Valid @RequestBody Reserva reserva) {
         return service.guardar(reserva);
     }
 
     @PutMapping("/{id}")
-    public Reserva actualizar(@PathVariable Integer id, @RequestBody Reserva reserva) {
+    public Reserva actualizar(@PathVariable Integer id, @Valid @RequestBody Reserva reserva) {
         return service.actualizar(id, reserva);
     }
 
